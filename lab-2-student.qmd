@@ -5,6 +5,7 @@ format: html
 editor: source
 embed-resources: true
 code-tools: true
+echo: true
 ---
 
 # Part 1: GitHub Workflow
@@ -62,7 +63,7 @@ In the code chunk below, load in the packages necessary for your analysis. You s
 
 ```{r}
 #| label: setup
-
+library(tidyverse)
 ```
 
 # Data Context
@@ -101,17 +102,24 @@ represent:
 
 ```{r}
 #| label: load-data
+df <- read_csv("data/surveys.csv", show_col_types = FALSE)
 
+dim(df)
+
+glimpse(df)
 ```
 
 **2. What are the dimensions (# of rows and columns) of these data?**
 
 <!-- You can either write code here or in the code chunk for #1, but I **must** see the code you used to address this question!  -->
 
+The dimensions of the data frame contains 30,463 rows and 15 columns. 
+
 **3. What are the data types of the variables in this dataset?**
 
 <!-- You can either write code here or in the code chunk for #1, but I **must** see the code you used to address this question!  -->
 
+The data types in the dataset contains double, character, and date format.
 # Exploratory Data Analysis with **`ggplot2`**
 
 `ggplot()` graphics are built step by step by adding new elements. Adding layers
@@ -138,6 +146,17 @@ the $x$-axis) and `hindfoot_length` (on the $y$-axis).**
 
 ```{r}
 #| label: scatterplot
+
+ggplot(df, aes(x = weight, 
+               y = hindfoot_length)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~ species) +
+  labs(
+    title = "Plot of the Relationship between Weight and Hindfoot Length by Species",
+    x = "Weight (g)",
+    subtitle = "Hindfoot Length (mm)",
+    y = ""
+  )
 
 ```
 
@@ -169,7 +188,15 @@ It takes a larger cognitive load to read text that is rotated. It is common prac
 ```{r}
 #| label: boxplot
 
-
+ggplot(df, aes(x = species, y = weight)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.3, color = "steelblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(
+    x = "Species",
+    y = "",
+    subtitle = "Hindfoot Length (mm)",
+    title = "Boxplot of Hindfoot Length (mm) by Species")
 ```
 
 **10. Create side-by-side boxplots to visualize the distribution of weight within each species.**
@@ -215,7 +242,15 @@ Some people (and journals) prefer for boxplots to be stacked with a specific ori
 
 ```{r}
 #| label: rotated-boxplot
-
+ggplot(df, aes(x = weight, y = species)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.3, color = "steelblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(
+    subtitle = "Species",
+    y = "",
+    x = "Hindfoot Length (mm)",
+    title = "Boxplot of Hindfoot Length (mm) by Species")
 ```
 
 Notice how vertically stacked boxplots make the species labels more readable
@@ -229,6 +264,8 @@ dataset. Can we see a relationship between rodent weight and hindfoot length?
 How does rodent weight differ between species? After performing EDA, we can then
 conduct appropriate statistical analyses to formally investigate what we have
 seen.
+
+The relationship between rodent weight and hindfoot length have a very weak correlation. As most patterns from many different species showcase a vertical or horizontal or clumped up data distribution showing that the relationship is weak, if it was strong the pattern should be a linear growing line (x). The rodent weight does differ by species most species have a weight distribution between 0-100 grams, whereas albigula have a substantial distribution over 200 grams, even spectabilis rodent occupying the 100-200 grams.  
 
 In this section, we are going to conduct a one-way analysis of variance (ANOVA)
 to compare mean weight between the fourteen different species of rodents. If 
@@ -248,13 +285,15 @@ might want to look up the help documentation for `aov()`.
 ```{r}
 #| label: anova
 
-species_mod <- aov()
+species_mod <- aov(weight ~ species, 
+                   data = df)
 
 summary(species_mod)
 ```
 
 **18. Based on the results of the ANOVA F-test, draw a conclusion in context of the hypotheses. Make sure to cite appropriate output from above.**
 
+Since, our p-value at 2e-16 is smaller than our significance level at 0.05, we reject the null hypothesis that the population mean weight is the same for all fourteen rodent species, and we have strong evidence that at least one rodent species have a different population mean weight. 
 
 # Lab 2 Submission
 
