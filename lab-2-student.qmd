@@ -6,6 +6,7 @@ editor: source
 embed-resources: true
 code-tools: true
 echo: true
+code-fold: true
 ---
 
 # Part 1: GitHub Workflow
@@ -61,9 +62,11 @@ output, etc.).
 
 In the code chunk below, load in the packages necessary for your analysis. You should only need the `tidyverse` package for this analysis.
 
-```{r}
+```{r, error=FALSE, message=FALSE, warning=FALSE}
 #| label: setup
+
 library(tidyverse)
+library(here)
 ```
 
 # Data Context
@@ -102,7 +105,7 @@ represent:
 
 ```{r}
 #| label: load-data
-df <- read_csv("data/surveys.csv", show_col_types = FALSE)
+df <- read_csv(here("data/surveys.csv"), show_col_types = FALSE)
 
 dim(df)
 
